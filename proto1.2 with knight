@@ -1,0 +1,143 @@
+import copy
+class Position():
+    def __init__(self,fen):
+        self.fen = fen
+        self.board = []
+        self.moves = {}
+
+    def get_board(self):
+        fen_list = list(self.fen.split("/"))
+        for row in fen_list:
+            row_list = []
+            for piece in row:
+                try:
+                    row_list = ["0" for x in range(int(piece))]
+                except ValueError:
+                    row_list.append(piece)
+            self.board.append(row_list)
+    def capital(self,string):
+            if string.lower() == string:
+                return False
+            else:
+                return True
+    def empty(self,square):
+        if square == "0":
+            return True
+        else:
+            return False
+    def square_type(self,x,y):
+        print(x,y)
+        print(self.board[x][y])
+        square = self.board[x][y]
+        if self.empty(square) == True:
+            return "empty"
+        elif self.capital(square) == False:
+            return "black"
+        else:
+            return "white"
+            
+
+    def create_piece(self,piece,x,y):
+        match piece:
+            case "rook":
+                piece1 = Rook(x,y,self.board)
+        match piece:
+            case "bishop":
+                piece1 = Bishop(x,y,self.board)
+        match piece:
+            case "knight":
+                piece1 = Knight(x,y,self.board)
+        match piece:
+            case "king":
+                piece1 = King(x,y,self.board)
+        match piece:
+            case "queen":
+                piece1 = Queen(x,y,self.board)
+        match piece:
+            case "pawn":
+                piece1 = Pawn(x,y,self.board)
+class Piece_moves:
+    def __init__(self):
+        pass
+    def knight(self):
+        Knight.moves = [[1,2],[2,1],[2,-1],[1,-2],[-1,-2],[-2,-1],[-2,1],[-1,2]]
+    def king(self):
+        King.moves = [[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1]]
+    def bishop(self):
+        moves = []
+        for x in range(-7,8):
+            moves.append([x,x])
+        Bishop.moves = moves
+    def pawn(self):
+        Pawn.moves = [[-1,1],[1,1],[1,0],[2,0]]
+    def queen(self):
+        moves = []
+        moves.append(self.bishop())
+        moves.append(self.rook())
+        Queen.moves = moves
+    def rook(self):
+        moves = []
+        movesup = []
+        movesacross = []
+        for i in range(-7,8):
+            movesup.append([0,i])
+            movesacross.append([i,0])
+        for travel1 in movesup:
+            moves.append(travel1)
+        for travel2 in movesacross:
+            moves.append(travel2)
+        Rook.moves = moves
+        
+            
+class Piece:
+    def __init__(self,x,y,board,player):
+        self.x = x
+        self.y = y
+        self.board = board
+        self.player = player
+        self.moves = []
+class Rook(Piece):
+    def __init__(self,x,y,board,player):
+        super().__init__(x,y,board,player)
+    def output_moves(self):
+        moves = copy.deepcopy(Rook.moves)
+        moves.append("woah")
+        print(Rook.moves)
+class Knight(Piece):
+    def __init__(self,x,y,board,player):
+        super().__init__(x,y,board,player)
+    def check_moves(self):
+        for move in Knight.moves:
+            if -1 < int(self.x + move[0]) < 8 and -1 < self.y + move[1] < 8:
+                print(move)
+                if self.board.square_type(self.x+move[0],self.y+move[1]) != self.player:
+                    self.moves.append(move)
+class King(Piece):
+    def __init__(self,x,y,board,player):
+        super().__init__(x,y,board,player)
+class Queen(Piece):
+    def __init__(self,x,y,board,player):
+        super().__init__(x,y,board,player)
+class Bishop(Piece):
+    def __init__(self,x,y,board,player):
+        super().__init__(x,y,board,player)
+class Pawn(Piece):
+    def __init__(self,x,y,board,player):
+        super().__init__(x,y,board,player)
+start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+def setup_moves():
+    obj = Piece_moves()
+    obj.knight()
+    obj.pawn()
+    obj.bishop()
+    obj.king()
+    obj.queen()
+    obj.rook()
+setup_moves()
+current = Position(start_fen)
+current.get_board()
+rook = Rook(5,5,current,"white")
+rook.output_moves()
+knight = Knight(4,4,current,"white")
+knight.check_moves()
+print(knight.moves)
