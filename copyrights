@@ -1,0 +1,358 @@
+import pygame 
+pygame.init()
+
+
+###=+=+=+=+=+=+#=+=-----------------------------------
+#   | VARIABLES  |
+###=+=+=+=+=+=+#=+=-----------------------------------
+
+height = 400 #screen height
+width = 400 #screen width
+
+asciiA = 65
+
+midY = (height/16)
+midX = (width/16) 
+
+screen = pygame.display.set_mode((width, height)) #initialise screen
+pygame.display.set_caption("Chess")
+
+clock = pygame.time.Clock() #initialise clock
+
+updatedSuccessfully = False
+
+###---------###
+#   IMAGES    #
+###---------###
+
+boardImg = pygame.image.load("chessBoard.png") #load image for board
+boardImg = pygame.transform.scale(boardImg, (width, height)) #tranform board to screen size
+
+whitePawnImg = pygame.image.load("WhitePawn.png")
+whitePawnImg = pygame.transform.scale(whitePawnImg, (25, 25))
+
+###--------###
+#   GROUPS   #
+###--------###
+
+allSprites = pygame.sprite.Group() #creates a sprite group, for all sprites
+whitePieces = pygame.sprite.Group()
+blackPieces = pygame.sprite.Group()
+
+###-------###
+#   BOARD   #
+###-------###
+
+board = {
+    "A": {
+        1: {"coordinates": [(midX * (2 * 1 - 1), midY * (2 * 1 - 1))], "piece": ""},
+        2: {"coordinates": [(midX * (2 * 1 - 1), midY * (2 * 2 - 1))], "piece": ""},
+        3: {"coordinates": [(midX * (2 * 1 - 1), midY * (2 * 3 - 1))], "piece": ""},
+        4: {"coordinates": [(midX * (2 * 1 - 1), midY * (2 * 4 - 1))], "piece": ""},
+        5: {"coordinates": [(midX * (2 * 1 - 1), midY * (2 * 5 - 1))], "piece": ""},
+        6: {"coordinates": [(midX * (2 * 1 - 1), midY * (2 * 6 - 1))], "piece": ""},
+        7: {"coordinates": [(midX * (2 * 1 - 1), midY * (2 * 7 - 1))], "piece": ""},
+        8: {"coordinates": [(midX * (2 * 1 - 1), midY * (2 * 8 - 1))], "piece": ""},
+    },
+    "B": {
+        1: {"coordinates": [(midX * (2 * 2 - 1), midY * (2 * 1 - 1))], "piece": ""},
+        2: {"coordinates": [(midX * (2 * 2 - 1), midY * (2 * 2 - 1))], "piece": ""},
+        3: {"coordinates": [(midX * (2 * 2 - 1), midY * (2 * 3 - 1))], "piece": ""},
+        4: {"coordinates": [(midX * (2 * 2 - 1), midY * (2 * 4 - 1))], "piece": ""},
+        5: {"coordinates": [(midX * (2 * 2 - 1), midY * (2 * 5 - 1))], "piece": ""},
+        6: {"coordinates": [(midX * (2 * 2 - 1), midY * (2 * 6 - 1))], "piece": ""},
+        7: {"coordinates": [(midX * (2 * 2 - 1), midY * (2 * 7 - 1))], "piece": ""},
+        8: {"coordinates": [(midX * (2 * 2 - 1), midY * (2 * 8 - 1))], "piece": ""},
+    },
+    "C": {
+        1: {"coordinates": [(midX * (2 * 3 - 1), midY * (2 * 1 - 1))], "piece": ""},
+        2: {"coordinates": [(midX * (2 * 3 - 1), midY * (2 * 2 - 1))], "piece": ""},
+        3: {"coordinates": [(midX * (2 * 3 - 1), midY * (2 * 3 - 1))], "piece": ""},
+        4: {"coordinates": [(midX * (2 * 3 - 1), midY * (2 * 4 - 1))], "piece": ""},
+        5: {"coordinates": [(midX * (2 * 3 - 1), midY * (2 * 5 - 1))], "piece": ""},
+        6: {"coordinates": [(midX * (2 * 3 - 1), midY * (2 * 6 - 1))], "piece": ""},
+        7: {"coordinates": [(midX * (2 * 3 - 1), midY * (2 * 7 - 1))], "piece": ""},
+        8: {"coordinates": [(midX * (2 * 3 - 1), midY * (2 * 8 - 1))], "piece": ""},
+    },
+    "D": {
+        1: {"coordinates": [(midX * (2 * 4 - 1), midY * (2 * 1 - 1))], "piece": ""},
+        2: {"coordinates": [(midX * (2 * 4 - 1), midY * (2 * 2 - 1))], "piece": ""},
+        3: {"coordinates": [(midX * (2 * 4 - 1), midY * (2 * 3 - 1))], "piece": ""},
+        4: {"coordinates": [(midX * (2 * 4 - 1), midY * (2 * 4 - 1))], "piece": ""},
+        5: {"coordinates": [(midX * (2 * 4 - 1), midY * (2 * 5 - 1))], "piece": ""},
+        6: {"coordinates": [(midX * (2 * 4 - 1), midY * (2 * 6 - 1))], "piece": ""},
+        7: {"coordinates": [(midX * (2 * 4 - 1), midY * (2 * 7 - 1))], "piece": ""},
+        8: {"coordinates": [(midX * (2 * 4 - 1), midY * (2 * 8 - 1))], "piece": ""},
+    },
+    "E": {
+        1: {"coordinates": [(midX * (2 * 5 - 1), midY * (2 * 1 - 1))], "piece": ""},
+        2: {"coordinates": [(midX * (2 * 5 - 1), midY * (2 * 2 - 1))], "piece": ""},
+        3: {"coordinates": [(midX * (2 * 5 - 1), midY * (2 * 3 - 1))], "piece": ""},
+        4: {"coordinates": [(midX * (2 * 5 - 1), midY * (2 * 4 - 1))], "piece": ""},
+        5: {"coordinates": [(midX * (2 * 5 - 1), midY * (2 * 5 - 1))], "piece": ""},
+        6: {"coordinates": [(midX * (2 * 5 - 1), midY * (2 * 6 - 1))], "piece": ""},
+        7: {"coordinates": [(midX * (2 * 5 - 1), midY * (2 * 7 - 1))], "piece": ""},
+        8: {"coordinates": [(midX * (2 * 5 - 1), midY * (2 * 8 - 1))], "piece": ""},
+    },
+    "F": {
+        1: {"coordinates": [(midX * (2 * 6 - 1), midY * (2 * 1 - 1))], "piece": ""},
+        2: {"coordinates": [(midX * (2 * 6 - 1), midY * (2 * 2 - 1))], "piece": ""},
+        3: {"coordinates": [(midX * (2 * 6 - 1), midY * (2 * 3 - 1))], "piece": ""},
+        4: {"coordinates": [(midX * (2 * 6 - 1), midY * (2 * 4 - 1))], "piece": ""},
+        5: {"coordinates": [(midX * (2 * 6 - 1), midY * (2 * 5 - 1))], "piece": ""},
+        6: {"coordinates": [(midX * (2 * 6 - 1), midY * (2 * 6 - 1))], "piece": ""},
+        7: {"coordinates": [(midX * (2 * 6 - 1), midY * (2 * 7 - 1))], "piece": ""},
+        8: {"coordinates": [(midX * (2 * 6 - 1), midY * (2 * 8 - 1))], "piece": ""},
+    },
+    "G": {
+        1: {"coordinates": [(midX * (2 * 7 - 1), midY * (2 * 1 - 1))], "piece": ""},
+        2: {"coordinates": [(midX * (2 * 7 - 1), midY * (2 * 2 - 1))], "piece": ""},
+        3: {"coordinates": [(midX * (2 * 7 - 1), midY * (2 * 3 - 1))], "piece": ""},
+        4: {"coordinates": [(midX * (2 * 7 - 1), midY * (2 * 4 - 1))], "piece": ""},
+        5: {"coordinates": [(midX * (2 * 7 - 1), midY * (2 * 5 - 1))], "piece": ""},
+        6: {"coordinates": [(midX * (2 * 7 - 1), midY * (2 * 6 - 1))], "piece": ""},
+        7: {"coordinates": [(midX * (2 * 7 - 1), midY * (2 * 7 - 1))], "piece": ""},
+        8: {"coordinates": [(midX * (2 * 7 - 1), midY * (2 * 8 - 1))], "piece": ""},
+    },
+    "H": {
+        1: {"coordinates": [(midX * (2 * 8 - 1), midY * (2 * 1 - 1))], "piece": ""},
+        2: {"coordinates": [(midX * (2 * 8 - 1), midY * (2 * 2 - 1))], "piece": ""},
+        3: {"coordinates": [(midX * (2 * 8 - 1), midY * (2 * 3 - 1))], "piece": ""},
+        4: {"coordinates": [(midX * (2 * 8 - 1), midY * (2 * 4 - 1))], "piece": ""},
+        5: {"coordinates": [(midX * (2 * 8 - 1), midY * (2 * 5 - 1))], "piece": ""},
+        6: {"coordinates": [(midX * (2 * 8 - 1), midY * (2 * 6 - 1))], "piece": ""},
+        7: {"coordinates": [(midX * (2 * 8 - 1), midY * (2 * 7 - 1))], "piece": ""},
+        8: {"coordinates": [(midX * (2 * 8 - 1), midY * (2 * 8 - 1))], "piece": ""},
+    }
+}
+
+###=+=+=+=+=+#=+=-----------------------------------
+#   | CLASSES  |
+###=+=+=+=+=+#=+=-----------------------------------
+
+class Pawn(pygame.sprite.Sprite):
+    def __init__(self, image, xPos, yPos, colour, file, rank):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.center = (xPos, yPos)  
+        self.clicked = False
+        self.value = 1
+        self.rank = rank
+        self.file = file
+        self.colour = colour
+        self.hasMoved = False
+        
+    def update_pos(self, xPos, yPos):
+        self.rect.center = (xPos, yPos)  # Use center position instead of top-left
+        
+    
+    def drag(self, mouse_position): #creates function to drag the Pawn
+        
+        newXpos = mouse_position[0] #newXpos is the x position of the mouse
+        newYpos = mouse_position[1] #newYpos is the y position of the mouse
+        
+        self.update_pos(newXpos, newYpos) #calls update_pos
+        allSprites.clear(screen, boardImg) #clears screen 
+    
+    def drop(self, mouse_position):
+        global updatedSuccessfully
+        
+        prevSquare = (self.file, self.rank)
+        prevCoords = board[self.file][self.rank]["coordinates"][0]
+        
+        
+        
+        if mouse_position[0] > width: 
+            newXpos = width - midX
+            
+        elif mouse_position[0] < 0: 
+            newXpos = midX
+            
+        else:
+            newXpos = ((mouse_position[0]//50)*50) + midX
+
+
+            
+        if self.hasMoved == False: ##If the pawn has not moved:
+            if mouse_position[1] < 0:
+                newYpos = prevCoords[1]
+                
+            else:
+                nextRank = int(self.rank-1)
+                nextRankCoords = board[self.file][nextRank]["coordinates"][0]
+        
+                nextRank2 = int(self.rank-2)
+                nextRank2Coords = board[self.file][nextRank2]["coordinates"][0]
+                
+                if mouse_position[1] > prevCoords[1]: #Prevents pawn moving backwards
+                    newYpos = prevCoords[1]
+                
+                elif mouse_position[1] < prevCoords[1]+midY:
+                    nextRank = int(self.rank-1)
+                    
+                    if mouse_position[1] < nextRankCoords[1] and mouse_position[1] > nextRank2Coords[1]:
+                        newYpos = nextRankCoords[1]
+                        
+                    elif mouse_position[1] < nextRank2Coords[1]:
+                        newYpos = nextRank2Coords[1]
+                        
+                    else:
+                        newYpos = prevCoords[1]
+                
+                else: 
+                    newYpos = ((mouse_position[1]//50)*50) + midY
+            
+        elif self.hasMoved == True: ##If the pawn has moved:
+            if mouse_position[1] <= 0: 
+                newYpos = prevCoords[1]
+              
+            elif mouse_position[1] >= height:
+                newYpos = prevCoords[1]
+                
+            
+            elif mouse_position[1] >= prevCoords[1]:
+                newYpos = prevCoords[1]
+                
+                
+            elif mouse_position[1] <= board[self.file][1]["coordinates"][0][1]+midY and self.rank == 2:
+                newYpos = board[self.file][1]["coordinates"][0][1]
+                
+            
+            else:
+                nextRank = int(self.rank-1)
+                nextRankCoords = board[self.file][nextRank]["coordinates"][0]
+                
+                if self.rank-2 > 0:
+                    nextRank2 = int(self.rank-2)
+                    nextRank2Coords = board[self.file][nextRank2]["coordinates"][0]
+                
+                    if mouse_position[1] > prevCoords[1]:
+                        newYpos = prevCoords[1]
+                        
+                    elif mouse_position[1] < prevCoords[1]:
+                        newYpos = nextRankCoords[1]
+                        
+                else: 
+                    newYpos = prevCoords[1]
+                   
+                
+        newSquare = self.findRank(newXpos, newYpos)
+        
+        
+        if board[newSquare[0]][newSquare[1]]["piece"] == "":
+            board[prevSquare[0]][prevSquare[1]]["piece"] = ""
+            board[newSquare[0]][newSquare[1]]["piece"] = self
+            self.update_pos(newXpos, newYpos)
+            updatedSuccessfully = True
+            self.hasMoved = True
+             
+        else:
+            coordinates = board[prevSquare[0]][prevSquare[1]]["coordinates"][0]
+            self.update_pos(coordinates[0], coordinates[1])
+        
+        allSprites.clear(screen, boardImg) 
+    
+    def findRank(self, xPosition, yPosition):
+        FileNum = ((xPosition//16) //3)
+        File = chr(asciiA + int(FileNum))
+        
+        Rank = ((yPosition//16) //3) +1
+        
+        self.rank = Rank
+        self.file = File
+        
+        return(File, Rank) 
+
+###=+=+=+=+=+=+=+=+#=+=-----------------------------------
+#   | SUBPROGRAMS |
+###=+=+=+=+=+=+=+=+#=+=-----------------------------------
+
+def createPawn(rank, file):
+    coords = board[rank][file]["coordinates"][0]
+    return(Pawn(whitePawnImg, coords[0], coords[1], "White", rank, file))
+    
+###=+=+=+=+=+#=+=-----------------------------------
+#   | MAIN  |
+###=+=+=+=+=+#=+=-----------------------------------
+
+###-----------------###
+#   SPRITE CREATION   #
+###-----------------###
+
+pawnA = createPawn("A", 7)
+board["A"][7]["piece"] = pawnA
+
+pawnB = createPawn("B", 7)
+board["B"][7]["piece"] = pawnB
+
+pawnC = createPawn("C", 7)
+board["C"][7]["piece"] = pawnC
+
+pawnD = createPawn("D", 7)
+board["D"][7]["piece"] = pawnD
+
+pawnE = createPawn("E", 7)
+board["E"][7]["piece"] = pawnE
+
+pawnF = createPawn("F", 7)
+board["F"][7]["piece"] = pawnF
+
+pawnG = createPawn("G", 7)
+board["G"][7]["piece"] = pawnG
+
+pawnH = createPawn("H", 7)
+board["H"][7]["piece"] = pawnH
+
+allSprites.add(pawnA)
+whitePieces.add(pawnA)
+allSprites.add(pawnB)
+whitePieces.add(pawnB)
+allSprites.add(pawnC)
+whitePieces.add(pawnC)
+allSprites.add(pawnD)
+whitePieces.add(pawnD)
+allSprites.add(pawnE)
+whitePieces.add(pawnE)
+allSprites.add(pawnF)
+whitePieces.add(pawnF)
+allSprites.add(pawnG)
+whitePieces.add(pawnG)
+allSprites.add(pawnH)
+whitePieces.add(pawnH)
+###----------###
+#   MAIN LOOP  #
+###----------###
+
+while True:
+    updatedSuccessfully = False
+    screen.blit(boardImg, (0,0))
+    mouse_pos = pygame.mouse.get_pos()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()     
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            
+            for sprite in allSprites:
+                if sprite.rect.collidepoint(mouse_pos):
+                    sprite.clicked = True
+        
+    for sprite in allSprites: 
+        if sprite.clicked:
+            sprite.drag(mouse_pos)
+            
+            if event.type == pygame.MOUSEBUTTONUP:
+                sprite.clicked = False
+                sprite.drop(mouse_pos)
+        
+    allSprites.update()
+    allSprites.draw(screen)
+
+    pygame.display.flip()
+    clock.tick(60)
+
+
+
+
